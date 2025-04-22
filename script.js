@@ -79,3 +79,8 @@ function atualizarContador() {
 // Atualiza o contador a cada segundo
 setInterval(atualizarContador, 1000);
 atualizarContador(); // Chama a função ao carregar a página
+
+document.getElementById('botao-entrada').addEventListener('click', function () {
+    document.getElementById('tela-inicial').style.display = 'none';
+    document.getElementById('conteudo').style.display = 'block';
+});
