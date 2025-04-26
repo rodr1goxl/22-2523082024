@@ -258,3 +258,60 @@ body {
  .rodape{
      color: #A1A1A18A;
  }
+/* Botão neon*/ 
+.neon-button {
+  position: relative;
+  padding: 0.75em 1.5em;
+  border-radius: 0.625em;
+  border: 2px solid #CD33DF;
+  font-size: 0.938em;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.125em;
+  background: transparent;
+  color: #CD33DF;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 0 40px 10px rgba(250, 0, 255, 0.5); /* Luz sempre ligada */
+  transition: all 0.3s ease-in-out;
+}
+
+.neon-button:hover {
+  background: rgba(0, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.neon-button::before {
+  content: "";
+  display: block;
+  width: 0px;
+  height: 86%;
+  position: absolute;
+  top: 7%;
+  left: 0%;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, #CD33DF, transparent);
+  box-shadow: 0 0 50px 30px #CD33DF;
+  transform: skewX(-20deg);
+  animation: neon-shine 2s linear infinite; /* Agora animando para sempre */
+}
+
+@keyframes neon-shine {
+  0% {
+    opacity: 0;
+    left: 0%;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    left: 100%;
+  }
+}
+
+.neon-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 0 transparent;
+  transition: all 0.2s ease-in;
+}
