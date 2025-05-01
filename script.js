@@ -1,6 +1,10 @@
 // Esconder a tela inicial e iniciar a música ao clicar no botão
 document.getElementById("botao-entrada").addEventListener("click", function() {
     document.getElementById("tela-inicial").style.display = "none";
+    document.getElementById("conteudo").style.display = "block";
+    
+    // Mostra o botão de tema após clicar no botão neon
+    document.querySelector(".theme-toggle-container").style.display = "block";
     
     // Inicia a música com efeito de fade-in
     musica.volume = 0;
@@ -80,7 +84,34 @@ function atualizarContador() {
 setInterval(atualizarContador, 1000);
 atualizarContador(); // Chama a função ao carregar a página
 
-document.getElementById('botao-entrada').addEventListener('click', function () {
-    document.getElementById('tela-inicial').style.display = 'none';
-    document.getElementById('conteudo').style.display = 'block';
+// ===== CONTROLE DO TEMA =====
+const themeToggle = document.getElementById('themeToggle');
+
+// Alternar tema
+themeToggle.addEventListener('change', function() {
+    document.body.classList.toggle('tema-claro');
+    
+    // Salvar preferência
+    localStorage.setItem('tema', this.checked ? 'claro' : 'escuro');
+    
+    // Atualizar corações no tema claro
+    const coracoes = document.querySelectorAll('.coracao');
+    if (document.body.classList.contains('tema-claro')) {
+        coracoes.forEach(coracao => {
+            coracao.style.color = 'black';
+        });
+    } else {
+        coracoes.forEach(coracao => {
+            coracao.style.color = '';
+        });
+    }
+});
+
+// Carregar tema salvo
+document.addEventListener('DOMContentLoaded', function() {
+    const temaSalvo = localStorage.getItem('tema');
+    if (temaSalvo === 'claro') {
+        themeToggle.checked = true;
+        document.body.classList.add('tema-claro');
+    }
 });
