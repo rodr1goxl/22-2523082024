@@ -1,12 +1,147 @@
-// Esconder a tela inicial e iniciar a música ao clicar no botão
+// ===== [1] VARIÁVEIS GLOBAIS =====
+const musica = document.getElementById("musica");
+const musicToggle = document.getElementById("music-toggle");
+const themeToggle = document.getElementById("themeToggle");
+const sliderWrapper = document.querySelector(".slides-wrapper");
+const slides = document.querySelectorAll(".slide");
+
+// Configurações do Slider
+let currentIndex = 0;
+let autoSlideInterval;
+let pauseTimeout;
+let touchStartX = 0;
+const SLIDE_INTERVAL = 3000; // 3 segundos entre slides automáticos
+const PAUSE_DURATION = 5000; // 5 segundos de pausa após interação
+
+// ===== [2] FUNÇÕES DO SLIDER =====
+function showSlide(index) {
+    currentIndex = (index + slides.length) % slides.length;
+    sliderWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+}
+
+function startAutoSlide() {
+    clearInterval(autoSlideInterval);
+    clearTimeout(pauseTimeout);
+    
+    autoSlideInterval = setInterval(() => {
+        showSlide(currentIndex + 1);
+    }, SLIDE_INTERVAL);
+}
+
+function handleManualInteraction(direction) {
+    clearInterval(autoSlideInterval);
+    clearTimeout(pauseTimeout);
+    
+    showSlide(currentIndex + direction);
+    
+    pauseTimeout = setTimeout(() => {
+        startAutoSlide();
+    }, PAUSE_DURATION);
+}
+
+// ===== [3] EVENTOS DE TOUCH/SWIPE =====
+sliderWrapper.addEventListener("touchstart", (e) => {
+    touchStartX = e.touches[0].clientX;
+    clearInterval(autoSlideInterval);
+}, { passive: true });
+
+sliderWrapper.addEventListener("touchend", (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > 50) {
+        handleManualInteraction(diff > 0 ? 1 : -1);
+    } else {
+        startAutoSlide();
+    }
+}, { passive: true });
+
+// ===== [4] CONTROLE DE MÚSICA =====
+musicToggle.addEventListener("change", function() {
+    if (this.checked) {
+        musica.play();
+    } else {
+        musica.pause();
+    }
+});
+
+// ===== [5] CORAÇÕES ANIMADOS =====
+function criarCoracao() {
+    const coracao = document.createElement("div");
+    coracao.innerHTML = "💜";
+    coracao.classList.add("coracao");
+    
+    if (document.body.classList.contains("tema-claro")) {
+        coracao.style.color = "black";
+    }
+    
+    coracao.style.left = Math.random() * 100 + "vw";
+    coracao.style.animationDuration = Math.random() * 2 + 3 + "s";
+    document.body.appendChild(coracao);
+    
+    setTimeout(() => coracao.remove(), 5000);
+}
+
+// ===== [6] CONTADOR DE TEMPO =====
+function atualizarContador() {
+    const inicio = new Date("August 23, 2024 22:25:00").getTime();
+    const agora = new Date().getTime();
+    const diferenca = agora - inicio;
+    
+    const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diferenca % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutos = Math.floor((diferenca % (1000 * 60 * 60)) / (1000 * 60));
+    const segundos = Math.floor((diferenca % (1000 * 60)) / 1000);
+    
+    document.getElementById("contador").innerText =
+        `${dias} dias, ${horas} horas, ${minutos} minutos e ${segundos} segundos`;
+}
+
+// ===== [7] CONTROLE DO TEMA =====
+themeToggle.addEventListener("change", function() {
+    document.body.classList.toggle("tema-claro");
+    localStorage.setItem("tema", this.checked ? "claro" : "escuro");
+    
+    document.querySelectorAll(".coracao").forEach(coracao => {
+        coracao.style.color = this.checked ? "black" : "";
+    });
+});
+
+// ===== [8] INICIALIZAÇÃO =====
+document.addEventListener("DOMContentLoaded", function() {
+    // Tema
+    if (localStorage.getItem("tema") === "claro") {
+        themeToggle.checked = true;
+        document.body.classList.add("tema-claro");
+    }
+    
+    // Contador
+    atualizarContador();
+    setInterval(atualizarContador, 1000);
+    
+    // Slider
+    startAutoSlide();
+    
+    // Corações
+    setInterval(criarCoracao, 200);
+    
+    // Pausa slider quando mouse está sobre ele
+    sliderWrapper.addEventListener("mouseenter", () => {
+        clearInterval(autoSlideInterval);
+    });
+    
+    sliderWrapper.addEventListener("mouseleave", () => {
+        startAutoSlide();
+    });
+});
+
+// ===== [9] TELA INICIAL =====
 document.getElementById("botao-entrada").addEventListener("click", function() {
     document.getElementById("tela-inicial").style.display = "none";
     document.getElementById("conteudo").style.display = "block";
-    
-    // Mostra o botão de tema após clicar no botão neon
     document.querySelector(".theme-toggle-container").style.display = "block";
     
-    // Inicia a música com efeito de fade-in
+    // Inicia música com fade-in
     musica.volume = 0;
     musica.play();
     
@@ -20,98 +155,5 @@ document.getElementById("botao-entrada").addEventListener("click", function() {
         }
     }, 200);
     
-    musicToggle.checked = true; // Atualiza o botão de música para indicar que está tocando
-});
-
-// Slider de imagens
-let sliderWrapper = document.querySelector(".slides-wrapper");
-let slides = document.querySelectorAll(".slide");
-let index = 0;
-
-function trocarImagem() {
-    index = (index + 1) % slides.length;
-    let deslocamento = -index * 100 + "%";
-    sliderWrapper.style.transform = `translateX(${deslocamento})`;
-}
-
-setInterval(trocarImagem, 3000);
-
-// Corações caindo
-function criarCoracao() {
-    const coracao = document.createElement("div");
-    coracao.innerText = "💜";
-    coracao.classList.add("coracao");
-    document.body.appendChild(coracao);
-    
-    coracao.style.left = Math.random() * 100 + "vw";
-    coracao.style.animationDuration = Math.random() * 2 + 3 + "s";
-    
-    setTimeout(() => {
-        coracao.remove();
-    }, 5000);
-}
-
-setInterval(criarCoracao, 200);
-
-// Controle da música
-let musica = document.getElementById("musica");
-let musicToggle = document.getElementById("music-toggle");
-
-musicToggle.addEventListener("change", () => {
-    if (musicToggle.checked) {
-        musica.play();
-    } else {
-        musica.pause();
-    }
-});
-
-// Atualiza o contador
-function atualizarContador() {
-    const inicio = new Date("August 23, 2024 22:25:00").getTime();
-    const agora = new Date().getTime();
-    const diferenca = agora - inicio;
-    
-    const dias = Math.floor(diferenca / (1000 * 60 * 60 * 24));
-    const horas = Math.floor((diferenca / (1000 * 60 * 60)) % 24);
-    const minutos = Math.floor((diferenca / (1000 * 60)) % 60);
-    const segundos = Math.floor((diferenca / 1000) % 60);
-    
-    document.getElementById("contador").innerText =
-        `${dias} dias, ${horas} horas, ${minutos} minutos e ${segundos} segundos`;
-}
-
-// Atualiza o contador a cada segundo
-setInterval(atualizarContador, 1000);
-atualizarContador(); // Chama a função ao carregar a página
-
-// ===== CONTROLE DO TEMA =====
-const themeToggle = document.getElementById('themeToggle');
-
-// Alternar tema
-themeToggle.addEventListener('change', function() {
-    document.body.classList.toggle('tema-claro');
-    
-    // Salvar preferência
-    localStorage.setItem('tema', this.checked ? 'claro' : 'escuro');
-    
-    // Atualizar corações no tema claro
-    const coracoes = document.querySelectorAll('.coracao');
-    if (document.body.classList.contains('tema-claro')) {
-        coracoes.forEach(coracao => {
-            coracao.style.color = 'black';
-        });
-    } else {
-        coracoes.forEach(coracao => {
-            coracao.style.color = '';
-        });
-    }
-});
-
-// Carregar tema salvo
-document.addEventListener('DOMContentLoaded', function() {
-    const temaSalvo = localStorage.getItem('tema');
-    if (temaSalvo === 'claro') {
-        themeToggle.checked = true;
-        document.body.classList.add('tema-claro');
-    }
+    musicToggle.checked = true;
 });
